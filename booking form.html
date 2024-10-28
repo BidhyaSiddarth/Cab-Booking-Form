@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cab Booking Form</title>
+    <style>
+        /* Base styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Container */
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        /* Header */
+        .form-container h1 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        /* Form fields */
+        label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin: 10px 0 5px;
+            text-align: left;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus,
+        input[type="tel"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Amount field */
+        input[readonly] {
+            background-color: #f0f0f0;
+        }
+
+        /* Submit button */
+        button {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 1rem;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h1>Cab Booking Form</h1>
+        <form id="bookingForm">
+            <label for="agencyName">Travel Agency Name *</label>
+            <input type="text" id="agencyName" name="agencyName" placeholder="Enter agency name" required>
+
+            <label for="phone">Your Phone Number *</label>
+            <input type="tel" id="phone" name="phone" placeholder="Enter phone number" required>
+
+            <label for="tripType">Select Your Trip *</label>
+            <select id="tripType" name="tripType" onchange="calculateAmount()" required>
+                <option value="">Please Select</option>
+                <option value="Single Trip">Single Trip</option>
+                <option value="Round Trip">Round Trip</option>
+            </select>
+
+            <label for="carrierOption">Carrier Option *</label>
+            <select id="carrierOption" name="carrierOption" onchange="calculateAmount()" required>
+                <option value="">Please Select</option>
+                <option value="With Carrier">With Carrier</option>
+                <option value="Without Carrier">Without Carrier</option>
+            </select>
+
+            <label for="bookingDate">Booking Date *</label>
+            <input type="date" id="bookingDate" name="bookingDate" required>
+
+            <label for="vehicle">Select Vehicle *</label>
+            <select id="vehicle" name="vehicle" onchange="calculateAmount()" required>
+                <option value="">Select Vehicle</option>
+                <option value="Ciaz">Ciaz</option>
+                <option value="Breeza">Breeza</option>
+                <option value="Wagonar">Wagonar</option>
+                <option value="Creta">Creta</option>
+                <option value="Innova">Innova</option>
+            </select>
+
+            <label for="location">Select Destination *</label>
+            <select id="location" name="location" onchange="calculateAmount()" required>
+                <option value="">Select Destination</option>
+                <option value="Bagdogra">Bagdogra</option>
+                <option value="NJP">NJP</option>
+                <option value="Junction">Junction</option>
+                <option value="Hasimara">Hasimara</option>
+                <option value="Alipurduar">Alipurduar</option>
+            </select>
+
+            <label for="amount">Total Amount (INR)</label>
+            <input type="text" id="amount" name="amount" placeholder="Total Amount" readonly>
+
+            <button type="button" onclick="submitForm()">Submit Booking</button>
+        </form>
+    </div>
+
+    <script>
+        // Price map for different vehicle and location combinations
+        const priceMap = {
+            "Ciaz": { "Bagdogra": 2500, "NJP": 2400, "Junction": 2300, "Hasimara": 700, "Alipurduar": 2000 },
+            "Breeza": { "Bagdogra": 2500, "NJP": 2400, "Junction": 2300, "Hasimara": 700, "Alipurduar": 2000 },
+            "Wagonar": { "Bagdogra": 2500, "NJP": 2400, "Junction": 2300, "Hasimara": 700, "Alipurduar": 2000 },
+            "Creta": { "Bagdogra": 3000, "NJP": 2800, "Junction": 2600, "Hasimara": 800, "Alipurduar": 2300 },
+            "Innova": { "Bagdogra": 4000, "NJP": 3800, "Junction": 3700, "Hasimara": 1000, "Alipurduar": 2800 }
+        };
+
+        // Calculate and update the amount based on vehicle, location, carrier option, and trip type
+        function calculateAmount() {
+            const vehicle = document.getElementById("vehicle").value;
+            const location = document.getElementById("location").value;
+            const carrierOption = document.getElementById("carrierOption").value;
+            const tripType = document.getElementById("tripType").value;
+
+            let baseAmount = vehicle && location ? priceMap[vehicle][location] : 0;
+
+            // Add 200 for "With Carrier" option
+            if (carrierOption === "With Carrier") {
+                baseAmount += 200;
+            }
+
+            // Apply round trip discount if selected
+            if (tripType === "Round Trip") {
+                baseAmount = baseAmount * 2 * 0.7; // Double the base amount, then apply a 30% discount
+            }
+
+            document.getElementById("amount").value = baseAmount.toFixed(2);
+        }
+
+        function submitForm() {
+            const form = document.getElementById("bookingForm");
+            const formData = new FormData(form);
+            const data = {};
+
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            fetch("https://script.google.com/macros/s/AKfycbzp0pcKywTtFU0wA2BRVz7kB9m84MC-EZuk2_yL6J6f1yOXGqSxdYgB9Qa96fhxPniclQ/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                alert("Form submitted successfully!");
+                form.reset();
+            })
+            .catch(error => {
+                alert("There was an error submitting the form.");
+                console.error("Error:", error);
+            });
+        }
+    </script>
+
+</body>
+</html>
